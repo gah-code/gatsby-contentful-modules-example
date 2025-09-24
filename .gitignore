@@ -1,0 +1,47 @@
+### 🚀 Hide Sensitive Files
+.env*
+!.env.EXAMPLE  # Keep only the example env file for reference
+
+### ⚡ System & Editor-Specific Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+### 📦 Dependencies
+node_modules/
+yarn.lock
+
+### ⚡ Gatsby Build & Cache
+.cache/
+
+### 🔍 Debugging & Logs
+npm-debug.log*
+yarn-error.log
+gatsby-debug.log
+
+### 🎨 ESLint, Prettier, and Babel
+.eslintcache
+.babelrc
+.prettier_cache/
+.eslintcache/
+
+### 🧪 Test & Coverage Reports
+coverage/
+jest/
+
+### 📄 Documentation (Ignore Generated Docs)
+docs/
+docs/*
+
+### 🛠 Ignore Partytown (Third-Party Script Optimization)
+public/~partytown/
+public/
+.cache/
+src/testing
+file-draft.md
+
+# Ignore lock files (optional based on your package manager)
+package-lock.json
+.env.development
+.env.production
