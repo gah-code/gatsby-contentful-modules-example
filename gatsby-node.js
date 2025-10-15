@@ -6,19 +6,30 @@ exports.createSchemaCustomization = ({ actions }) => {
       order: Int
     }
 
+    """
+    Flatten Contentful Note fields so they query as simple scalars.
+    """
+    type ContentfulNote implements Node {
+      description: String
+      content: JSON
+    }
+
+
     type ContentfulPage implements Node {
       id: ID!
       title: String
       slug: String
+      description: String
       # Declare the modules field as an array of Module and link to nodes
       modules: [Module] @link
     }
 
-    type ContentfulHero implements Node & Module {
+    type ContentfulHero implements Node & Module @dontInfer {
       id: ID!
       order: Int
       heading: String
       subheading: String
+      description: String
       backgroundImage: ContentfulAsset @link
     }
 

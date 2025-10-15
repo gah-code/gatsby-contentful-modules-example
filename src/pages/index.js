@@ -1,6 +1,7 @@
 import React from 'react';
 import { graphql } from 'gatsby';
 import ModuleRenderer from '../components/ModuleRenderer';
+import TestNote from '../components/TestNote';
 
 export default function HomePage({ data }) {
   const page = data?.contentfulPage;
@@ -14,6 +15,8 @@ export default function HomePage({ data }) {
   return (
     <main style={{ fontFamily: 'system-ui, sans-serif', padding: 24 }}>
       <h1>{page.title}</h1>
+      <p>{page.description}</p>
+      <TestNote />
       {page.modules?.map((module) => (
         <div key={module.id} style={{ margin: '24px 0' }}>
           <ModuleRenderer module={module} />
@@ -27,12 +30,15 @@ export const query = graphql`
   query PageModules {
     contentfulPage(slug: { eq: "home" }) {
       title
+      description
+
       modules {
         __typename
         ... on ContentfulHero {
           id
           heading
           subheading
+          description
           backgroundImage {
             title
             gatsbyImageData(width: 1200)

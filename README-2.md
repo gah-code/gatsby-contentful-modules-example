@@ -176,3 +176,13 @@ Happy fragment-hunting — precision beats guesswork.
 Create a `Page` content type with a `slug` field and a `modules` (multiple references) field that includes entries of types matching: `Hero`, `Cards`, `Gallery`. Publish entries.
 
 This example is intentionally minimal for learning purposes.
+
+----
+
+### Update 10/15/25
+
+**Description:**
+This update fixes GraphQL field resolution issues in the Contentful Note queries by flattening nested field types (`description` and `content`) into simple scalar fields through `gatsby-node.js` schema customization. It ensures the Note model can be queried directly without requiring subfield selections.
+
+**Summary:**
+Added schema customization in `gatsby-node.js` to redefine `description` as `String` and `content` as `JSON` for the `ContentfulNote` type. Updated `TestNote.js` to use these flattened fields, resolving GraphQL errors and successfully displaying data from the “Atomic Design” Note entry with image, description, and JSON content output.

@@ -166,7 +166,7 @@ After publishing, run Gatsby and use the GraphiQL queries above to inspect resul
 
 ---
 
-## Final nerdy note
+## Final note
 
 This project is intentionally minimal so you can *learn by changing things*. Add fields, rename a field in Contentful, re-declare types in `gatsby-node.js`, and watch how GraphiQL and your page output respond. The magic (and the debugging practice) lives in the small differences between what your schema *declares* and what the content actually contains.
 
