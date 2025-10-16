@@ -313,6 +313,15 @@ import { graphql } from 'gatsby';
 import { GatsbyImage, getImage } from 'gatsby-plugin-image';
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
 
+const findReferencedImage = (note) => {
+  const references = note?.contentBody?.references;
+  if (!Array.isArray(references)) return null;
+
+  return references.find(
+    (ref) => ref?.__typename === 'ContentfulAsset' && ref?.gatsbyImageData,
+  );
+};
+
 export default function NoteTemplate({ data }) {
   const note = data?.contentfulNote;
 
@@ -320,8 +329,9 @@ export default function NoteTemplate({ data }) {
     console.log('🧩 Full note data:', note);
   }, [note]);
 
-  // Safely get image data
-  const image = note?.image ? getImage(note.image) : null;
+  // Prefer the primary image, but fall back to first referenced asset if needed
+  const imageAsset = note?.image || findReferencedImage(note) || null;
+  const image = imageAsset ? getImage(imageAsset) : null;
 
   // Parse rich text
   const doc =
@@ -334,7 +344,7 @@ export default function NoteTemplate({ data }) {
       {image ? (
         <GatsbyImage
           image={image}
-          alt={note.image?.title || note.title}
+          alt={imageAsset?.title || note.title}
           style={{ borderRadius: 12, marginBottom: 24 }}
         />
       ) : (
@@ -345,7 +355,14 @@ export default function NoteTemplate({ data }) {
 
       {!image && (
         <pre style={{ background: '#222', color: 'white', padding: 16 }}>
-          {JSON.stringify(note.image, null, 2)}
+          {JSON.stringify(
+            {
+              image: note?.image,
+              referencedAsset: findReferencedImage(note),
+            },
+            null,
+            2,
+          )}
         </pre>
       )}
 
@@ -385,8 +402,6 @@ export const query = graphql`
             __typename
             title
             gatsbyImageData(width: 800)
-            gatsbyImage
-            gatsbyImageData
             id
           }
         }
