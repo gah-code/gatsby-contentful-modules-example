@@ -320,8 +320,9 @@ export default function NoteTemplate({ data }) {
     console.log('🧩 Full note data:', note);
   }, [note]);
 
-  // Safely get image data
-  const image = note?.image ? getImage(note.image) : null;
+  // Prefer the primary image, but fall back to featuredImage if needed
+  const imageAsset = note?.image || note?.featuredImage || null;
+  const image = imageAsset ? getImage(imageAsset) : null;
 
   // Parse rich text
   const doc =
@@ -334,7 +335,7 @@ export default function NoteTemplate({ data }) {
       {image ? (
         <GatsbyImage
           image={image}
-          alt={note.image?.title || note.title}
+          alt={imageAsset?.title || note.title}
           style={{ borderRadius: 12, marginBottom: 24 }}
         />
       ) : (
@@ -345,7 +346,7 @@ export default function NoteTemplate({ data }) {
 
       {!image && (
         <pre style={{ background: '#222', color: 'white', padding: 16 }}>
-          {JSON.stringify(note.image, null, 2)}
+          {JSON.stringify({ image: note?.image, featuredImage: note?.featuredImage }, null, 2)}
         </pre>
       )}
 
@@ -377,6 +378,11 @@ export const query = graphql`
         title
         url
       }
+      featuredImage {
+        gatsbyImageData(width: 1000, placeholder: BLURRED)
+        title
+        url
+      }
       contentBody {
         raw
         references {
@@ -385,8 +391,6 @@ export const query = graphql`
             __typename
             title
             gatsbyImageData(width: 800)
-            gatsbyImage
-            gatsbyImageData
             id
           }
         }
