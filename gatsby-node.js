@@ -45,23 +45,25 @@ exports.createSchemaCustomization = ({ actions }) => {
       images: [ContentfulAsset] @link
     }
 
-    # Unified ContentfulNote type
-  type ContentfulNote implements Node {
-  slug: String
-  title: String
-  description: String
-  featured: Boolean
-  image: ContentfulAsset @link
-  seoTitle: String @proxy(from: "SEO Title")
-  seoDescription: String @proxy(from: "SEO Description")
-}
+    type ContentfulNoteContentBody {
+      raw: String
+    }
 
-
+    type ContentfulNote implements Node {
+      slug: String
+      title: String
+      description: String
+      featured: Boolean
+      image: ContentfulAsset @link
+      seoTitle: String @proxy(from: "SEO Title")
+      seoDescription: String @proxy(from: "SEO Description")
+      contentBody: ContentfulNoteContentBody
+    }
   `);
 };
 
 // --- Create dynamic pages for Notes
-exports.createPages = async ({ graphql, actions }) => {
+exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions;
 
   const result = await graphql(`
@@ -71,22 +73,36 @@ exports.createPages = async ({ graphql, actions }) => {
           id
           title
           slug
+          updatedAt(formatString: "YYYY-MM-DD HH:mm")
         }
       }
     }
   `);
 
-  if (result.errors) throw result.errors;
+  if (result.errors) {
+    reporter.panicOnBuild('Error loading Contentful notes', result.errors);
+    return;
+  }
 
   const notes = result.data.allContentfulNote.nodes;
+
+  reporter.info(`Creating ${notes.length} Contentful note pages`);
 
   notes.forEach((note) => {
     const slug =
       note.slug ||
-      note.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+      (note.title
+        ? note.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '')
+        : '');
+
+    reporter.verbose(
+      `• Note ${note.id} (${note.title || 'Untitled'}) → /notes/${slug}/ (updated ${
+        note.updatedAt || 'unknown'
+      })`,
+    );
 
     createPage({
       path: `/notes/${slug}/`,
