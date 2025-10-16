@@ -58,23 +58,24 @@ export default function TestNote() {
             }
           }
         }
+        featuredImage {
+          gatsbyImageData(placeholder: BLURRED, layout: CONSTRAINED, width: 800)
+          title
+        }
       }
     }
   `);
 
   const note = data?.contentfulNote;
 
-  React.useEffect(() => {
-    logNotePayload(note);
-  }, [note]);
-
-  if (!note) {
-    return null;
-  }
-
-  const imageAsset = pickNoteImageAsset(note);
+  const imageAsset = note.image || note.featuredImage;
   const image = imageAsset ? getImage(imageAsset) : null;
-  const slug = note.slug || buildSlugFromTitle(note.title);
+  const slug = note.slug
+    ? note.slug
+    : note.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
 
   return (
     <article

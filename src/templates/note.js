@@ -51,15 +51,9 @@ export default function NoteTemplate({ data }) {
     logNote(note);
   }, [note]);
 
-  if (!note) {
-    return (
-      <main style={{ fontFamily: 'system-ui, sans-serif', padding: 24 }}>
-        <p style={{ color: '#b91c1c' }}>
-          ⚠️ No Contentful note was returned for this page.
-        </p>
-      </main>
-    );
-  }
+  // Prefer the primary image, but fall back to featuredImage if needed
+  const imageAsset = note?.image || note?.featuredImage || null;
+  const image = imageAsset ? getImage(imageAsset) : null;
 
   const imageAsset = pickNoteImageAsset(note);
   const image = imageAsset ? getImage(imageAsset) : null;
@@ -92,8 +86,15 @@ export default function NoteTemplate({ data }) {
         </div>
       )}
 
-      <h1 style={{ marginBottom: 12 }}>{note.title || 'Untitled Note'}</h1>
-      {note.description && (
+      {!image && (
+        <pre style={{ background: '#222', color: 'white', padding: 16 }}>
+          {JSON.stringify({ image: note?.image, featuredImage: note?.featuredImage }, null, 2)}
+        </pre>
+      )}
+
+      <h1>{note?.title || 'Untitled Note'}</h1>
+
+      {note?.description && (
         <p style={{ opacity: 0.8, marginBottom: 24 }}>{note.description}</p>
       )}
       {note.featured && (
@@ -134,6 +135,11 @@ export const query = graphql`
         title
         url
       }
+      featuredImage {
+        gatsbyImageData(width: 1000, placeholder: BLURRED)
+        title
+        url
+      }
       contentBody {
         raw
         references {
@@ -141,9 +147,8 @@ export const query = graphql`
           ... on ContentfulAsset {
             contentful_id
             title
-            description
-            url
-            gatsbyImageData(width: 1200, placeholder: BLURRED)
+            gatsbyImageData(width: 800)
+            id
           }
         }
       }
