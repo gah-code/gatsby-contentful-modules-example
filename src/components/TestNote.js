@@ -102,6 +102,10 @@ export default function TestNote() {
           gatsbyImageData(placeholder: BLURRED, layout: CONSTRAINED, width: 800)
           title
         }
+        featuredImage {
+          gatsbyImageData(placeholder: BLURRED, layout: CONSTRAINED, width: 800)
+          title
+        }
       }
     }
   `);
@@ -109,7 +113,8 @@ export default function TestNote() {
   const note = data?.contentfulNote;
   if (!note) return null;
 
-  const image = getImage(note.image);
+  const imageAsset = note.image || note.featuredImage;
+  const image = imageAsset ? getImage(imageAsset) : null;
   const slug = note.slug
     ? note.slug
     : note.title
@@ -135,7 +140,7 @@ export default function TestNote() {
         {image && (
           <GatsbyImage
             image={image}
-            alt={note.image?.title || note.title}
+            alt={imageAsset?.title || note.title}
             style={{ borderRadius: 12, marginBottom: 24 }}
           />
         )}
