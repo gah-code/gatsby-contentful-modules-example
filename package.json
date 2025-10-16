@@ -8,6 +8,8 @@
     "serve": "gatsby serve"
   },
   "dependencies": {
+    "@contentful/rich-text-react-renderer": "^16.1.5",
+    "@contentful/rich-text-types": "^17.2.4",
     "dotenv": "^17.2.2",
     "gatsby": "^5.0.0",
     "gatsby-plugin-image": "^3.0.0",

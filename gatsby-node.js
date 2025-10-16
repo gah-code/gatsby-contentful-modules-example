@@ -1,3 +1,6 @@
+const path = require('path');
+
+// --- Schema customization
 exports.createSchemaCustomization = ({ actions }) => {
   const { createTypes } = actions;
   createTypes(`
@@ -6,21 +9,11 @@ exports.createSchemaCustomization = ({ actions }) => {
       order: Int
     }
 
-    """
-    Flatten Contentful Note fields so they query as simple scalars.
-    """
-    type ContentfulNote implements Node {
-      description: String
-      content: JSON
-    }
-
-
     type ContentfulPage implements Node {
       id: ID!
       title: String
       slug: String
       description: String
-      # Declare the modules field as an array of Module and link to nodes
       modules: [Module] @link
     }
 
@@ -51,5 +44,54 @@ exports.createSchemaCustomization = ({ actions }) => {
       order: Int
       images: [ContentfulAsset] @link
     }
+
+    # Unified ContentfulNote type
+  type ContentfulNote implements Node {
+  slug: String
+  title: String
+  description: String
+  featured: Boolean
+  image: ContentfulAsset @link
+  seoTitle: String @proxy(from: "SEO Title")
+  seoDescription: String @proxy(from: "SEO Description")
+}
+
+
   `);
+};
+
+// --- Create dynamic pages for Notes
+exports.createPages = async ({ graphql, actions }) => {
+  const { createPage } = actions;
+
+  const result = await graphql(`
+    {
+      allContentfulNote {
+        nodes {
+          id
+          title
+          slug
+        }
+      }
+    }
+  `);
+
+  if (result.errors) throw result.errors;
+
+  const notes = result.data.allContentfulNote.nodes;
+
+  notes.forEach((note) => {
+    const slug =
+      note.slug ||
+      note.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+    createPage({
+      path: `/notes/${slug}/`,
+      component: path.resolve('./src/templates/note.js'),
+      context: { id: note.id, slug },
+    });
+  });
 };
